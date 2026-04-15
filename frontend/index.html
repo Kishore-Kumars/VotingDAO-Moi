@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAO — MOI Participant-Centric Governance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #070810;
+  --bg2:         #0d0f1e;
+  --bg3:         #131629;
+  --surface:     rgba(255,255,255,0.04);
+  --surface2:    rgba(255,255,255,0.07);
+  --border:      rgba(255,255,255,0.08);
+  --border2:     rgba(124,58,237,0.35);
+  --violet:      #7c3aed;
+  --violet-lite: #9d5ff5;
+  --cyan:        #00d4ff;
+  --cyan-dim:    rgba(0,212,255,0.15);
+  --green:       #10b981;
+  --amber:       #f59e0b;
+  --red:         #ef4444;
+  --text:        #f0f2ff;
+  --text-dim:    rgba(240,242,255,0.5);
+  --text-muted:  rgba(240,242,255,0.25);
+  --font-head:   'Unbounded', sans-serif;
+  --font-body:   'Outfit', sans-serif;
+  --font-mono:   'IBM Plex Mono', monospace;
+  --r:           14px;
+  --r-lg:        20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND MESH ─────────────────────────────────────────────────── */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 10%, rgba(124,58,237,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 90% 80%, rgba(0,212,255,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 40% at 50% 50%, rgba(13,15,30,0.9) 0%, transparent 70%);
+}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────── */
+.app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ── NAV ─────────────────────────────────────────────────────────────── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #fff;
+  font-family: var(--font-head);
+  box-shadow: 0 0 20px rgba(124,58,237,0.4);
+}
+
+.logo-name {
+  font-family: var(--font-head);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+.logo-tag {
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--violet-lite);
+  margin-top: 1px; letter-spacing: 0.08em;
+}
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+
+.badge-network {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; padding: 5px 12px;
+  font-size: 12px; font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--r); border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  transition: all 0.2s; letter-spacing: 0.01em; text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--violet), #5b21b6);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(124,58,237,0.5); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-cyan {
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,212,255,0.05));
+  color: var(--cyan); border: 1px solid rgba(0,212,255,0.3);
+}
+.btn-cyan:hover { background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); }
+
+.btn-ghost {
+  background: var(--surface); color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+.btn-green {
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05));
+  color: var(--green); border: 1px solid rgba(16,185,129,0.3);
+}
+.btn-green:hover { background: rgba(16,185,129,0.25); }
+
+.btn-red {
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05));
+  color: var(--red); border: 1px solid rgba(239,68,68,0.3);
+}
+.btn-red:hover { background: rgba(239,68,68,0.25); }
+
+.btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 10px; }
+.btn-lg { padding: 13px 28px; font-size: 15px; border-radius: 16px; }
+.btn-full { width: 100%; }
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+/* ── CARDS ───────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(255,255,255,0.12); }
+
+.card-glow {
+  border-color: var(--border2);
+  box-shadow: 0 0 30px rgba(124,58,237,0.08), inset 0 0 30px rgba(124,58,237,0.03);
+}
+
+/* ── HERO ────────────────────────────────────────────────────────────── */
+.hero { text-align: center; padding: 40px 0 60px; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.25);
+  border-radius: 100px; padding: 5px 14px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--violet-lite); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 900; line-height: 1.1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 30%, rgba(124,58,237,0.8));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+
+.hero-sub {
+  color: var(--text-dim); max-width: 540px; margin: 0 auto 32px;
+  font-size: 15px; line-height: 1.7;
+}
+
+/* ── STATS ROW ───────────────────────────────────────────────────────── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 40px;
+}
+
+@media(max-width: 700px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px;
+  position: relative; overflow: hidden;
+}
+
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--violet), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.stat-card:hover::before { opacity: 1; }
+
+.stat-label {
+  font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.1em; font-family: var(--font-mono); margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--font-head); font-size: 28px; font-weight: 700;
+  letter-spacing: -0.03em; color: var(--text);
+}
+
+.stat-value.cyan { color: var(--cyan); }
+.stat-value.violet { color: var(--violet-lite); }
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+
+.stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── MAIN GRID ───────────────────────────────────────────────────────── */
+.main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+@media(max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+/* ── SECTION HEADER ──────────────────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: var(--font-head); font-size: 15px; font-weight: 700;
+  letter-spacing: 0.02em; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.section-title .ico { font-size: 16px; }
+
+/* ── PROPOSALS ───────────────────────────────────────────────────────── */
+.proposal-list { display: flex; flex-direction: column; gap: 14px; }
+
+.proposal-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px;
+  transition: all 0.2s; cursor: default;
+}
+.proposal-card:hover { border-color: rgba(255,255,255,0.12); background: var(--surface2); }
+
+.proposal-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  margin-bottom: 14px;
+}
+
+.proposal-id {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+  background: var(--surface2); border-radius: 6px; padding: 2px 8px;
+}
+
+.proposal-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-family: var(--font-mono);
+  border-radius: 100px; padding: 3px 10px; border: 1px solid;
+}
+
+.status-active { color: var(--cyan); border-color: rgba(0,212,255,0.3); background: var(--cyan-dim); }
+.status-passed { color: var(--green); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); }
+.status-failed { color: var(--red); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); }
+.status-pending { color: var(--amber); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.1); }
+
+.proposal-title {
+  font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 6px;
+}
+
+.proposal-desc {
+  font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px;
+}
+
+.vote-bar-wrap { margin-bottom: 14px; }
+.vote-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 12px; margin-bottom: 5px; font-family: var(--font-mono);
+}
+.lbl-for { color: var(--green); }
+.lbl-against { color: var(--red); }
+
+.vote-bar {
+  height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;
+}
+.vote-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--green), #34d399);
+  transition: width 0.6s ease;
+}
+
+.vote-actions { display: flex; gap: 8px; }
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────── */
+.sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+/* ── MEMBER CARD ─────────────────────────────────────────────────────── */
+.member-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r-lg); padding: 24px;
+  box-shadow: 0 0 40px rgba(124,58,237,0.07);
+}
+
+.member-avatar {
+  width: 52px; height: 52px; border-radius: 14px; margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+
+.member-address {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+  background: var(--surface2); border-radius: 8px; padding: 4px 10px;
+  margin-bottom: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.member-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+.ms-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px;
+}
+.ms-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.08em; font-family: var(--font-mono); margin-bottom: 4px; }
+.ms-value { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+
+/* ── WEIGHT METER ─────────────────────────────────────────────────────── */
+.weight-meter {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 16px; margin-bottom: 16px;
+}
+
+.wm-label {
+  font-size: 10px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.1em; font-family: var(--font-mono); margin-bottom: 8px;
+}
+
+.wm-value {
+  font-family: var(--font-head); font-size: 32px; font-weight: 700;
+  background: linear-gradient(135deg, var(--cyan), var(--violet-lite));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 10px;
+}
+
+.wm-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.wm-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  transition: width 0.8s cubic-bezier(0.23,1,0.32,1);
+}
+
+.wm-breakdown {
+  display: flex; justify-content: space-between;
+  font-size: 11px; font-family: var(--font-mono); margin-top: 8px;
+  color: var(--text-muted);
+}
+
+.wm-breakdown span { color: var(--text-dim); }
+
+/* ── CREATE PROPOSAL ─────────────────────────────────────────────────── */
+.create-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 22px;
+}
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.08em; font-family: var(--font-mono); margin-bottom: 6px;
+}
+
+.form-input, .form-textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; color: var(--text);
+  font-family: var(--font-body); font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+
+.form-textarea { height: 80px; line-height: 1.5; }
+
+/* ── CONNECT OVERLAY ─────────────────────────────────────────────────── */
+.connect-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(7,8,16,0.92); backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+
+.connect-box {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 24px; padding: 48px 40px; text-align: center;
+  max-width: 440px; width: 100%;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.1);
+  animation: slideUp 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.connect-logo {
+  width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; box-shadow: 0 0 40px rgba(124,58,237,0.4);
+}
+
+.connect-box h2 {
+  font-family: var(--font-head); font-size: 22px; font-weight: 700;
+  margin-bottom: 10px; letter-spacing: -0.01em;
+}
+
+.connect-box p {
+  font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 28px;
+}
+
+.connect-inputs { text-align: left; margin-bottom: 20px; }
+.connect-inputs .form-label { font-size: 11px; }
+
+.demo-note {
+  font-size: 11px; color: var(--text-muted); margin-top: 16px;
+  font-family: var(--font-mono); line-height: 1.5;
+}
+
+.demo-note a { color: var(--violet-lite); cursor: pointer; text-decoration: underline; }
+
+/* ── TOAST ───────────────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px;
+  font-size: 13px; font-family: var(--font-body);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: toastIn 0.3s ease; max-width: 320px;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.toast.success { border-color: rgba(16,185,129,0.3); color: var(--green); }
+.toast.error   { border-color: rgba(239,68,68,0.3);  color: var(--red); }
+.toast.info    { border-color: rgba(124,58,237,0.3); color: var(--violet-lite); }
+.toast.loading { border-color: rgba(245,158,11,0.3); color: var(--amber); }
+
+/* ── TX HASH ─────────────────────────────────────────────────────────── */
+.tx-hash {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+  background: var(--surface); border-radius: 6px; padding: 3px 8px;
+  margin-top: 4px; cursor: pointer; display: inline-block;
+  border: 1px solid var(--border);
+}
+.tx-hash:hover { color: var(--cyan); border-color: rgba(0,212,255,0.3); }
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  color: var(--text-muted); font-size: 14px;
+}
+.empty-state .ico { font-size: 40px; display: block; margin-bottom: 12px; }
+
+/* ── SPINNER ─────────────────────────────────────────────────────────── */
+.spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: currentColor; border-radius: 50%;
+  animation: spin 0.6s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── DIVIDER ─────────────────────────────────────────────────────────── */
+.divider {
+  border: none; border-top: 1px solid var(--border); margin: 20px 0;
+}
+
+/* ── ACTIVITY FEED ───────────────────────────────────────────────────── */
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0;
+}
+
+.activity-text { color: var(--text-dim); }
+.activity-text strong { color: var(--text); }
+.activity-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+
+/* ── FORMULA BOX ─────────────────────────────────────────────────────── */
+.formula-box {
+  background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+  color: var(--text-dim);
+}
+.formula-box .hi { color: var(--violet-lite); font-weight: 500; }
+.formula-box .eq { color: var(--cyan); }
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-mesh"></div>
+
+<!-- CONNECT OVERLAY -->
+<div class="connect-overlay" id="connectOverlay">
+  <div class="connect-box">
+    <div class="connect-logo">🏛️</div>
+    <h2>VotingDAO on MOI</h2>
+    <p>Connect to MOI testnet to participate in participant-centric governance. Your voting power is <em>earned</em>, not bought.</p>
+
+    <div class="connect-inputs">
+      <div class="form-group">
+        <label class="form-label">Private Key (Testnet Only)</label>
+        <input id="pkInput" class="form-input" type="password"
+          placeholder="0x... (from Voyage faucet wallet)" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Logic ID (after deploy)</label>
+        <input id="lidInput" class="form-input" type="text"
+          placeholder="0x... (from deploy.js output)" />
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-lg btn-full" onclick="connectWallet()">
+      <span>🔌</span> Connect to MOI Testnet
+    </button>
+
+    <p class="demo-note">
+      No keys yet? <a onclick="loadDemoMode()">Load demo mode</a> to explore the UI.<br>
+      Get testnet tokens at <strong>voyage.moi.technology/faucet</strong>
+    </p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-icon">⚖</div>
+      <div>
+        <div class="logo-name">VotingDAO</div>
+        <div class="logo-tag">Built on MOI Protocol</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="badge-network"><div class="dot"></div> <span id="networkLabel">MOI Babylon</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="showDisconnect()">
+        <span id="walletLabel">0x1234...abcd</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">🏛 Participant-Centric Governance</div>
+    <h1>Democracy, Not Plutocracy</h1>
+    <p class="hero-sub">
+      On Ethereum, 1 token = 1 vote. Here, your vote weight grows with every proposal you create and every vote you cast — stored in <em>your</em> participant state on MOI.
+    </p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Members</div>
+      <div class="stat-value cyan" id="statMembers">—</div>
+      <div class="stat-sub">registered participants</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Proposals</div>
+      <div class="stat-value violet" id="statProposals">—</div>
+      <div class="stat-sub">created on-chain</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Your Vote Weight</div>
+      <div class="stat-value amber" id="statWeight">—</div>
+      <div class="stat-sub">tokens + score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Quorum</div>
+      <div class="stat-value green" id="statQuorum">—</div>
+      <div class="stat-sub">min votes required</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: PROPOSALS -->
+    <div>
+      <div class="section-header">
+        <div class="section-title"><span class="ico">📋</span> Active Proposals</div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshProposals()">↻ Refresh</button>
+      </div>
+
+      <div class="proposal-list" id="proposalList">
+        <div class="empty-state">
+          <span class="ico">🗳️</span>
+          Connect your wallet to see proposals
+        </div>
+      </div>
+
+      <!-- ACTIVITY FEED -->
+      <div style="margin-top:32px;">
+        <div class="section-header">
+          <div class="section-title"><span class="ico">⚡</span> Recent Activity</div>
+        </div>
+        <div class="card" id="activityFeed">
+          <div class="empty-state" style="padding:24px">
+            <span>No activity yet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- MEMBER CARD -->
+      <div class="member-card">
+        <div class="member-avatar">👤</div>
+        <div style="font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:6px">
+          Your Profile
+        </div>
+        <div class="member-address" id="memberAddress">Not connected</div>
+
+        <!-- Weight Meter -->
+        <div class="weight-meter">
+          <div class="wm-label">Vote Weight</div>
+          <div class="wm-value" id="voteWeightDisplay">0</div>
+          <div class="wm-bar"><div class="wm-fill" id="voteWeightBar" style="width:0%"></div></div>
+          <div class="wm-breakdown">
+            <span>Tokens: <span id="wbTokens" class="wm-t">0</span></span>
+            <span>Score: <span id="wbScore" class="wm-s">0</span></span>
+          </div>
+        </div>
+
+        <!-- Mini Stats -->
+        <div class="member-stats">
+          <div class="ms-item">
+            <div class="ms-label">Tokens</div>
+            <div class="ms-value" id="memberTokens" style="color:var(--amber)">0</div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-label">Score</div>
+            <div class="ms-value" id="memberScore" style="color:var(--violet-lite)">0</div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-label">Proposed</div>
+            <div class="ms-value" id="memberProposed" style="color:var(--cyan)">0</div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-label">Voted</div>
+            <div class="ms-value" id="memberVoted" style="color:var(--green)">0</div>
+          </div>
+        </div>
+
+        <div id="registerBtnWrap">
+          <button class="btn btn-primary btn-full" onclick="registerMember()">
+            ✅ Join DAO (Enlist)
+          </button>
+        </div>
+        <div id="memberActions" style="display:none">
+          <button class="btn btn-cyan btn-full" onclick="refreshMemberStats()">
+            ↻ Refresh My Stats
+          </button>
+        </div>
+      </div>
+
+      <!-- HOW WEIGHT WORKS -->
+      <div class="card">
+        <div class="section-title" style="margin-bottom:12px"><span class="ico">🧮</span> Vote Weight Formula</div>
+        <div class="formula-box">
+          <span class="hi">weight</span> <span class="eq">=</span> tokens <span class="eq">+</span> score<br><br>
+          score <span class="eq">+=</span> <span class="hi">+10</span> per proposal created<br>
+          score <span class="eq">+=</span> <span class="hi">+5</span> per vote cast
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.6;">
+          On Ethereum, only token count matters. Here, consistent participation compounds your influence — impossible to fake, impossible to buy.
+        </p>
+      </div>
+
+      <!-- CREATE PROPOSAL -->
+      <div class="create-card">
+        <div class="section-title" style="margin-bottom:16px"><span class="ico">✏️</span> Create Proposal</div>
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input id="propTitle" class="form-input" type="text" placeholder="e.g. Fund developer grants" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="propDesc" class="form-textarea" placeholder="Describe what this proposal aims to achieve..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" id="proposeBtn" onclick="createProposal()">
+          📢 Submit Proposal  <span style="font-size:11px;opacity:0.7">(+10 score)</span>
+        </button>
+      </div>
+
+    </div><!-- /sidebar -->
+  </div><!-- /main-grid -->
+</div><!-- /app -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── SCRIPTS ──────────────────────────────────────────────────────────── -->
+<script type="module">
+/*
+  INTEGRATION GUIDE:
+  ─────────────────
+  Replace the DEMO SDK object below with the real js-moi-sdk imports:
+
+    import { JsonRpcProvider, Wallet, getLogicDriver } from "js-moi-sdk";
+
+  For a browser bundle, first run:
+    npm install js-moi-sdk
+    npx esbuild backend/bundle.js --bundle --outfile=frontend/sdk-bundle.js --format=esm
+  Then import from "./sdk-bundle.js"
+
+  The LOGIC ID comes from your `node backend/deploy.js` output.
+*/
+
+// ── STATE ──────────────────────────────────────────────────────────────
+const state = {
+  connected:  false,
+  demoMode:   false,
+  address:    '',
+  logicId:    '',
+  isMember:   false,
+  tokens:     0,
+  score:      0,
+  proposed:   0,
+  voted:      0,
+  proposals:  [],
+  activity:   [],
+  totalMembers: 0,
+  quorum:     3,
+};
+
+// ── DEMO DATA ──────────────────────────────────────────────────────────
+const DEMO_PROPOSALS = [
+  { id: 1, title: "Fund Developer Grants Q2 2026", desc: "Allocate 5000 COCO from treasury to fund 3 developer grants for tools built on MOI.", status: "active",  forVotes: 340, againstVotes: 120 },
+  { id: 2, title: "Add New Track: AI Agents",       desc: "Introduce a fourth hackathon track focused on AI agents leveraging MOI participant state.", status: "active",  forVotes: 580, againstVotes: 60  },
+  { id: 3, title: "Reduce Quorum from 5 to 3",      desc: "Lower the quorum threshold to increase governance participation in early stages.", status: "passed",  forVotes: 900, againstVotes: 200 },
+  { id: 4, title: "Emergency Security Audit",       desc: "Allocate budget for third-party security audit of core DAO logic contracts.", status: "pending", forVotes: 100, againstVotes: 80  },
+];
+
+// ── CONNECT ────────────────────────────────────────────────────────────
+window.connectWallet = async function() {
+  const pk  = document.getElementById('pkInput').value.trim();
+  const lid = document.getElementById('lidInput').value.trim();
+
+  if (!pk)  { toast('error', '⚠️ Please enter your private key'); return; }
+  if (!lid) { toast('error', '⚠️ Please enter the Logic ID after deploying'); return; }
+
+  toast('loading', '🔄 Connecting to MOI Babylon testnet...');
+
+  try {
+    /*
+    ── REAL SDK CODE ──
+    const provider  = new JsonRpcProvider("https://voyage-rpc.moi.technology/babylon/");
+    const wallet    = new Wallet(provider);
+    await wallet.connect(pk);
+    state.dao       = await getLogicDriver(lid, wallet);
+    state.address   = await wallet.getAddress();
+    */
+
+    // DEMO SIMULATION (remove when using real SDK)
+    await sleep(1200);
+    state.address  = '0x' + Array.from({length:20},()=>Math.floor(Math.random()*16).toString(16)).join('');
+    state.logicId  = lid;
+    state.connected = true;
+
+    onConnected();
+    toast('success', '✅ Connected to MOI Babylon testnet!');
+  } catch(e) {
+    toast('error', '❌ Connection failed: ' + e.message);
+  }
+};
+
+window.loadDemoMode = function() {
+  state.demoMode  = true;
+  state.connected = true;
+  state.address   = '0xDEMO...4a2f';
+  state.isMember  = true;
+  state.tokens    = 150;
+  state.score     = 65;
+  state.proposed  = 2;
+  state.voted     = 7;
+  state.proposals = DEMO_PROPOSALS;
+  state.totalMembers = 24;
+  state.activity = [
+    { color: 'var(--green)',  text: '<strong>0xA1b2…</strong> voted FOR proposal #2',   time: '2m ago'  },
+    { color: 'var(--cyan)',   text: '<strong>0xF3d4…</strong> created proposal #4',      time: '14m ago' },
+    { color: 'var(--green)',  text: '<strong>0xC7e8…</strong> joined the DAO',            time: '1h ago'  },
+    { color: 'var(--amber)',  text: '<strong>Proposal #3</strong> passed with 81% FOR',  time: '3h ago'  },
+    { color: 'var(--violet-lite)', text: '<strong>0xB2a1…</strong> earned 10 score pts','time': '5h ago' },
+  ];
+  onConnected();
+  toast('info', '🎭 Demo mode loaded — explore the UI!');
+};
+
+function onConnected() {
+  document.getElementById('connectOverlay').style.display = 'none';
+
+  const short = state.address.slice(0,6) + '...' + state.address.slice(-4);
+  document.getElementById('walletLabel').textContent   = short;
+  document.getElementById('memberAddress').textContent = short;
+
+  updateStats();
+  renderProposals();
+  renderActivity();
+  updateMemberCard();
+}
+
+// ── REGISTER ───────────────────────────────────────────────────────────
+window.registerMember = async function() {
+  if (!state.connected) return;
+  if (state.isMember)  { toast('info','ℹ️ Already registered!'); return; }
+
+  toast('loading', '⏳ Calling Register endpoint...');
+
+  try {
+    /*
+    ── REAL SDK CODE ──
+    const ix = await state.dao.Register(100);   // 100 initial tokens
+    await ix.wait();
+    */
+    await sleep(1600);
+
+    state.isMember = true;
+    state.tokens   = 100;
+    state.score    = 0;
+    state.proposed = 0;
+    state.voted    = 0;
+    state.totalMembers += 1;
+
+    addActivity('var(--green)', `<strong>${short(state.address)}</strong> joined the DAO`, 'just now');
+    updateStats(); updateMemberCard();
+
+    document.getElementById('registerBtnWrap').style.display = 'none';
+    document.getElementById('memberActions').style.display   = 'block';
+
+    toast('success', '🎉 Registered! You got 100 governance tokens.');
+  } catch(e) { toast('error', '❌ ' + e.message); }
+};
+
+// ── CREATE PROPOSAL ────────────────────────────────────────────────────
+window.createProposal = async function() {
+  if (!state.isMember) { toast('error','⚠️ Register first!'); return; }
+
+  const title = document.getElementById('propTitle').value.trim();
+  const desc  = document.getElementById('propDesc').value.trim();
+
+  if (!title) { toast('error','⚠️ Title is required'); return; }
+
+  const btn = document.getElementById('proposeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+  toast('loading','⏳ Calling Propose endpoint on MOI...');
+
+  try {
+    /*
+    ── REAL SDK CODE ──
+    const ix = await state.dao.Propose();
+    await ix.wait();
+    */
+    await sleep(1800);
+
+    const newProp = {
+      id: state.proposals.length + 1,
+      title, desc: desc || 'No description provided.',
+      status: 'active', forVotes: 0, againstVotes: 0,
+    };
+
+    state.proposals.unshift(newProp);
+    state.score   += 10;
+    state.proposed += 1;
+    state.totalMembers = state.totalMembers; // unchanged
+
+    document.getElementById('propTitle').value = '';
+    document.getElementById('propDesc').value  = '';
+
+    addActivity('var(--cyan)', `<strong>${short(state.address)}</strong> created proposal #${newProp.id}`, 'just now');
+    updateStats(); renderProposals(); renderActivity(); updateMemberCard();
+
+    toast('success','📢 Proposal created! +10 participation score earned.');
+  } catch(e) { toast('error','❌ ' + e.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '📢 Submit Proposal  <span style="font-size:11px;opacity:0.7">(+10 score)</span>';
+  }
+};
+
+// ── VOTE ───────────────────────────────────────────────────────────────
+window.castVote = async function(proposalId, support) {
+  if (!state.isMember) { toast('error','⚠️ Register first!'); return; }
+
+  const label = support ? 'FOR' : 'AGAINST';
+  toast('loading',`⏳ Casting ${label} vote on MOI...`);
+
+  try {
+    /*
+    ── REAL SDK CODE ──
+    const ix = await state.dao.Vote();
+    await ix.wait();
+    */
+    await sleep(1600);
+
+    const prop = state.proposals.find(p => p.id === proposalId);
+    if (prop) {
+      if (support) prop.forVotes     += (state.tokens + state.score);
+      else         prop.againstVotes += (state.tokens + state.score);
+    }
+
+    state.score += 5;
+    state.voted += 1;
+
+    addActivity('var(--green)', `<strong>${short(state.address)}</strong> voted ${label} proposal #${proposalId}`, 'just now');
+    updateStats(); renderProposals(); renderActivity(); updateMemberCard();
+
+    toast('success',`✅ Voted ${label}! +5 participation score earned.`);
+  } catch(e) { toast('error','❌ ' + e.message); }
+};
+
+window.refreshMemberStats = async function() {
+  toast('loading','⏳ Fetching your participant state...');
+  await sleep(1000);
+  updateMemberCard();
+  toast('success','✅ Stats refreshed from MOI participant state.');
+};
+
+window.refreshProposals = async function() {
+  toast('loading','⏳ Loading proposals...');
+  await sleep(800);
+  renderProposals();
+  toast('success','✅ Proposals refreshed.');
+};
+
+// ── RENDER FUNCTIONS ───────────────────────────────────────────────────
+function renderProposals() {
+  const container = document.getElementById('proposalList');
+  if (!state.proposals.length) {
+    container.innerHTML = `<div class="empty-state"><span class="ico">🗳️</span>No proposals yet — create one!</div>`;
+    return;
+  }
+
+  container.innerHTML = state.proposals.map(p => {
+    const total   = p.forVotes + p.againstVotes || 1;
+    const forPct  = Math.round((p.forVotes / total) * 100);
+    const statusClass = { active:'status-active', passed:'status-passed', failed:'status-failed', pending:'status-pending' }[p.status] || 'status-active';
+    const statusLabel = { active:'🟢 Active', passed:'✅ Passed', failed:'❌ Failed', pending:'🟡 Pending' }[p.status] || 'Active';
+
+    const canVote = p.status === 'active' && state.isMember;
+
+    return `
+    <div class="proposal-card">
+      <div class="proposal-top">
+        <span class="proposal-id">#${p.id}</span>
+        <span class="proposal-status ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="proposal-title">${p.title}</div>
+      <div class="proposal-desc">${p.desc}</div>
+      <div class="vote-bar-wrap">
+        <div class="vote-bar-labels">
+          <span class="lbl-for">FOR ${p.forVotes} wt.</span>
+          <span class="lbl-against">${p.againstVotes} wt. AGAINST</span>
+        </div>
+        <div class="vote-bar"><div class="vote-bar-fill" style="width:${forPct}%"></div></div>
+      </div>
+      <div class="vote-actions">
+        <button class="btn btn-green btn-sm" onclick="castVote(${p.id},true)" ${canVote?'':'disabled'}>
+          👍 Vote For
+        </button>
+        <button class="btn btn-red btn-sm" onclick="castVote(${p.id},false)" ${canVote?'':'disabled'}>
+          👎 Vote Against
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="viewOnExplorer('${p.id}')">
+          🔍 Explorer
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateMemberCard() {
+  const weight = state.tokens + state.score;
+  const pct    = Math.min(100, (weight / 500) * 100);
+
+  document.getElementById('voteWeightDisplay').textContent = weight;
+  document.getElementById('voteWeightBar').style.width     = pct + '%';
+  document.getElementById('wbTokens').textContent          = state.tokens;
+  document.getElementById('wbScore').textContent           = state.score;
+  document.getElementById('memberTokens').textContent      = state.tokens;
+  document.getElementById('memberScore').textContent       = state.score;
+  document.getElementById('memberProposed').textContent    = state.proposed;
+  document.getElementById('memberVoted').textContent       = state.voted;
+  document.getElementById('statWeight').textContent        = weight;
+
+  if (state.isMember) {
+    document.getElementById('registerBtnWrap').style.display = 'none';
+    document.getElementById('memberActions').style.display   = 'block';
+  }
+}
+
+function updateStats() {
+  document.getElementById('statMembers').textContent  = state.totalMembers;
+  document.getElementById('statProposals').textContent = state.proposals.length;
+  document.getElementById('statQuorum').textContent   = state.quorum;
+  document.getElementById('statWeight').textContent   = state.tokens + state.score;
+}
+
+function renderActivity() {
+  const el = document.getElementById('activityFeed');
+  if (!state.activity.length) return;
+  el.innerHTML = state.activity.slice(0,6).map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function addActivity(color, text, time) {
+  state.activity.unshift({ color, text, time });
+  renderActivity();
+}
+
+// ── UTILITIES ──────────────────────────────────────────────────────────
+window.viewOnExplorer = function(id) {
+  toast('info', '🔍 Open voyage.moi.technology to see this interaction');
+};
+
+window.showDisconnect = function() {
+  toast('info', '💡 Refresh page to disconnect');
+};
+
+function short(addr) {
+  return addr.slice(0,6) + '...' + addr.slice(-4);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function toast(type, message) {
+  const icons = { success:'✅', error:'❌', info:'💡', loading:'⏳' };
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${message}</span>`;
+  container.appendChild(el);
+
+  const timeout = type === 'loading' ? 2500 : 3500;
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(20px)'; el.style.transition='all 0.3s';
+    setTimeout(() => el.remove(), 300); }, timeout);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+updateStats();
+</script>
+
+</body>
+</html>

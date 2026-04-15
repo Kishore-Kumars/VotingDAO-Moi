@@ -1,0 +1,86 @@
+{
+  "syntax": "PISA",
+  "engine": { "kind": "MORU" },
+  "elements": [
+    {
+      "ptr": 1,
+      "kind": "state",
+      "data": {
+        "fields": [
+          { "label": "dao_name", "type": "string" },
+          { "label": "proposal_count", "type": "u64" },
+          { "label": "quorum", "type": "u64" },
+          { "label": "totalVotes", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "ptr": 2,
+      "kind": "state",
+      "data": {
+        "fields": [
+          { "label": "token_balance", "type": "u64" },
+          { "label": "participation_score", "type": "u64" },
+          { "label": "proposals_created", "type": "u64" },
+          { "label": "votes_cast", "type": "u64" },
+          { "label": "is_member", "type": "bool" }
+        ]
+      }
+    },
+    {
+      "ptr": 3,
+      "kind": "routine",
+      "data": {
+        "name": "Init",
+        "kind": "deploy",
+        "accepts": [],
+        "returns": [],
+        "executes": { "kind": "MORU", "bin": [] }
+      }
+    },
+    {
+      "ptr": 4,
+      "kind": "routine",
+      "data": {
+        "name": "Register",
+        "kind": "enlist",
+        "accepts": [],
+        "returns": [],
+        "executes": { "kind": "MORU", "bin": [] }
+      }
+    },
+    {
+      "ptr": 5,
+      "kind": "routine",
+      "data": {
+        "name": "Propose",
+        "kind": "invokable",
+        "accepts": [],
+        "returns": [],
+        "executes": { "kind": "MORU", "bin": [] }
+      }
+    },
+    {
+      "ptr": 6,
+      "kind": "routine",
+      "data": {
+        "name": "Vote",
+        "kind": "invokable",
+        "accepts": [],
+        "returns": [],
+        "executes": { "kind": "MORU", "bin": [] }
+      }
+    },
+    {
+      "ptr": 7,
+      "kind": "routine",
+      "data": {
+        "name": "GetVoteWeight",
+        "kind": "invokable",
+        "accepts": [],
+        "returns": [],
+        "executes": { "kind": "MORU", "bin": [] }
+      }
+    }
+  ]
+}

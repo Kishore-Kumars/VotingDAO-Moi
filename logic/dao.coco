@@ -1,0 +1,77 @@
+coco VotingDAO
+
+// ── SHARED STATE (lives once, globally) ───────────────────────────────────
+state logic:
+    dao_name        String
+    proposal_count  U64
+    quorum          U64
+
+// ── PARTICIPANT STATE (each member gets their own copy) ───────────────────
+state actor:
+    token_balance        U64
+    participation_score  U64
+    proposals_created    U64
+    votes_cast           U64
+    is_member            Bool
+
+
+// ── DEPLOY: called once when the DAO is first created ─────────────────────
+endpoint deploy Init(name String, quorum_min U64):
+    mutate name      -> VotingDAO.Logic.dao_name
+    mutate quorum_min -> VotingDAO.Logic.quorum
+    mutate 0         -> VotingDAO.Logic.proposal_count
+
+
+// ── ENLIST: called when a new member joins ────────────────────────────────
+// Each new member starts with some tokens and zero score
+endpoint enlist Register(initial_tokens U64):
+    mutate initial_tokens -> VotingDAO.Sender.token_balance
+    mutate 0              -> VotingDAO.Sender.participation_score
+    mutate 0              -> VotingDAO.Sender.proposals_created
+    mutate 0              -> VotingDAO.Sender.votes_cast
+    mutate true           -> VotingDAO.Sender.is_member
+
+
+// ── DYNAMIC: create a proposal ────────────────────────────────────────────
+// Anyone who is a member can propose. Their score increases for doing so.
+endpoint dynamic Propose():
+    // Increment global proposal count
+    mutate count <- VotingDAO.Logic.proposal_count:
+        count += 1
+
+    // Reward proposer: bump their participation score
+    mutate score <- VotingDAO.Sender.participation_score:
+        score += 10
+
+    // Track proposals this member created
+    mutate created <- VotingDAO.Sender.proposals_created:
+        created += 1
+
+
+// ── DYNAMIC: cast a vote ──────────────────────────────────────────────────
+// Voting earns participation score, which increases future vote weight
+endpoint dynamic Vote():
+    // Reward voter: bump their participation score
+    mutate score <- VotingDAO.Sender.participation_score:
+        score += 5
+
+    // Track how many votes this member has cast
+    mutate cast <- VotingDAO.Sender.votes_cast:
+        cast += 1
+
+
+// ── DYNAMIC: give tokens to a participant (admin use / onboarding) ─────────
+endpoint dynamic AwardTokens(recipient Identifier, amount U64):
+    mutate bal <- VotingDAO.Actor(recipient).token_balance:
+        bal += amount
+
+
+// ── DYNAMIC: compute this caller's vote weight ────────────────────────────
+// THE KEY DIFFERENTIATOR vs Ethereum:
+// vote_weight = (token_balance + participation_score) ÷ 2
+// This rewards BOTH wealth AND engagement
+endpoint dynamic GetVoteWeight():
+    mutate tokens <- VotingDAO.Sender.token_balance:
+        tokens += 0    // read-only access pattern
+    mutate score <- VotingDAO.Sender.participation_score:
+        score += 0     // read-only access pattern
