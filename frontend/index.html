@@ -792,7 +792,7 @@ window.connectWallet = async function() {
 
     state.logicId = lid;
     state.dao = await getLogicDriver(lid, state.wallet);
-    state.address = state.wallet.getAddress();
+    state.address = (await state.wallet.getIdentifier()).toString();
     state.connected = true;
 
     await refreshAll();

@@ -19,11 +19,15 @@ export async function getSigner() {
 
     console.log("PRIVATE KEY:", pk);
 
-    // ✅ CORRECT WAY (for your SDK)
-    const wallet = new Wallet(provider);
-    await wallet.connect(pk);
+    // ✅ CORRECT WAY (for your SDK v0.7.0)
+    const hdNode = { privateKey: () => Buffer.from(pk.startsWith('0x') ? pk.slice(2) : pk, 'hex') };
+    const wallet = new Wallet(hdNode, "secp256k1");
+    wallet.connect(provider);
 
-    console.log("✅ Wallet connected:", wallet.address);
+    const address = (await wallet.getIdentifier()).toString();
+    wallet.address = address;
+
+    console.log("✅ Wallet connected:", address);
 
     return wallet;
 

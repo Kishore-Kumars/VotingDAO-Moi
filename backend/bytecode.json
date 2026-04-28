@@ -30,7 +30,7 @@
     },
     {
       "ptr": 3,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "Init",
         "kind": "deploy",
@@ -39,12 +39,12 @@
           { "label": "quorum_min", "type": "u64" }
         ],
         "returns": [],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
       "ptr": 4,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "Register",
         "kind": "enlist",
@@ -52,62 +52,66 @@
           { "label": "initial_tokens", "type": "u64" }
         ],
         "returns": [],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
       "ptr": 5,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "Propose",
-        "kind": "invokable",
+        "kind": "invoke",
+        "mode": "dynamic",
         "accepts": [
           { "label": "title", "type": "string" },
           { "label": "desc", "type": "string" }
         ],
         "returns": [],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
       "ptr": 6,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "Vote",
-        "kind": "invokable",
+        "kind": "invoke",
+        "mode": "dynamic",
         "accepts": [
           { "label": "proposal_id", "type": "u64" },
           { "label": "choice", "type": "bool" }
         ],
         "returns": [],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
       "ptr": 7,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "GetVoteWeight",
-        "kind": "invokable",
+        "kind": "invoke",
+        "mode": "dynamic",
         "accepts": [],
         "returns": [{ "type": "u64" }],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
       "ptr": 8,
-      "kind": "routine",
+      "kind": "callable",
       "data": {
         "name": "GetProposal",
-        "kind": "invokable",
+        "kind": "invoke",
+        "mode": "dynamic",
         "accepts": [{ "label": "id", "type": "u64" }],
         "returns": [{ "type": "Proposal" }],
-        "executes": { "kind": "MORU", "bin": [] }
+        "executes": { "bin": "" }
       }
     },
     {
         "ptr": 9,
-        "kind": "struct",
+        "kind": "typedef",
         "data": {
             "name": "Proposal",
             "fields": [

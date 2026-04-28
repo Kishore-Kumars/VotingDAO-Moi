@@ -6,8 +6,9 @@
   "main": "index.js",
   "scripts": {
     "deploy": "node backend/deploy.js",
+    "register": "node backend/register.js",
+    "propose": "node backend/propose.js",
     "vote": "node backend/vote.js",
-    "contribute": "node backend/contribute.js",
     "score": "node backend/getScore.js"
   },
   "dependencies": {

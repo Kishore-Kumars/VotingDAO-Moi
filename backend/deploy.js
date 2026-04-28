@@ -2,8 +2,7 @@
 
 import { getSigner } from "./config.js";
 import fs from "fs";
-import pkg from "js-polo";
-const { POLO } = pkg;
+import { LogicFactory } from "js-moi-sdk";
 
 // ✅ Load JSON manually
 const bytecode = JSON.parse(
@@ -17,47 +16,22 @@ async function main() {
     console.log("🚀 Deploying VotingDAO...");
     console.log("👤 Wallet:", wallet.address);
 
-    // Encode calldata for Init(name String, quorum_min U64)
-    const polo = new POLO();
-    const calldata = polo.encode({
-      name: "MOI Participant DAO",
-      quorum_min: 3
+    const factory = new LogicFactory(bytecode, wallet);
+
+    console.log("📤 Sending deployment interaction...");
+    const ix = await factory.deploy("Init", ["MOI Participant DAO", 3]).send({
+        fuel_price: 1,
+        fuel_limit: 1000000
     });
 
-    // ── Create Interaction ─────────────────────────────
-    const interaction = {
-      fuel_price: "0x1",
-      fuel_limit: "0x100000",
-
-      sender: {
-        id: wallet.address
-      },
-
-      ix_operations: [
-        {
-          type: 11, // LogicDeploy
-          payload: {
-            manifest: bytecode,
-            callsite: "Init",
-            calldata: "0x" + Buffer.from(calldata).toString("hex")
-          }
-        }
-      ]
-    };
-
-    console.log("✍️ Signing interaction...");
-    const signed = await wallet.signInteraction(interaction);
-
-    console.log("📤 Sending interaction...");
-    const txHash = await wallet.sendInteraction(signed);
-
-    console.log("📨 TX Hash:", txHash);
+    console.log("📨 TX Hash:", ix.hash);
     console.log("⏳ Waiting for receipt...");
 
-    const receipt = await wallet.provider.getInteractionReceipt(txHash);
+    const receipt = await ix.wait();
 
     console.log("✅ DAO DEPLOYED SUCCESSFULLY!");
     console.log(JSON.stringify(receipt, null, 2));
+    console.log("\n📦 LOGIC ID:", receipt.logic_id);
 
   } catch (error) {
     console.error("❌ DEPLOY FAILED:", error.message);

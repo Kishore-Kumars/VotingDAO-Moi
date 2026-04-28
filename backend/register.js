@@ -2,46 +2,23 @@
 
 import { getSigner } from "./config.js";
 import { LOGIC_ID } from "./constants.js";
-import pkg from "js-polo";
-const { POLO } = pkg;
+import { getLogicDriver } from "js-moi-sdk";
 
 async function main() {
   try {
     const wallet = await getSigner();
+    const dao = await getLogicDriver(LOGIC_ID, wallet);
 
     console.log("📝 Registering Member...");
 
-    const polo = new POLO();
-    const calldata = polo.encode({
-      initial_tokens: 100
+    const ix = await dao.routines.Register(100).send({
+        fuel_price: 1,
+        fuel_limit: 10000
     });
 
-    const interaction = {
-      fuel_price: "0x1",
-      fuel_limit: "0x10000",
+    console.log("📨 TX Hash:", ix.hash);
 
-      sender: {
-        id: wallet.address
-      },
-
-      ix_operations: [
-        {
-          type: 12, // LogicInvoke
-          payload: {
-            logic_id: LOGIC_ID,
-            callsite: "Register",
-            calldata: "0x" + Buffer.from(calldata).toString("hex")
-          }
-        }
-      ]
-    };
-
-    const signed = await wallet.signInteraction(interaction);
-    const txHash = await wallet.sendInteraction(signed);
-
-    console.log("📨 TX Hash:", txHash);
-
-    const receipt = await wallet.provider.getInteractionReceipt(txHash);
+    const receipt = await ix.wait();
 
     console.log("✅ Registration Successful!");
     console.log(JSON.stringify(receipt, null, 2));
